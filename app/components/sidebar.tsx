@@ -9,18 +9,19 @@ import { AllEndpointResponse } from '@/types/global'
 import useFetch from '@/helpers/useFetch'
 import Menu from './menu'
 import { useEffect, useState } from 'react'
+import useNavigation from '@/store/useNavigation';
+import { useRouter } from 'next/navigation';
 
 export default function SidebarLayout() {
+  const router = useRouter()
+  const { endpoints, isEndpointsLoaded, fetchEndpoints } = useNavigation()
   const [openDrawer, setOpenDrawer] = useState(false)
   const [description, setDescription] = useState('')
   const [name, setName] = useState('')
   const [toast, setToast] = useState(false)
   const [toastType, setToastType] = useState<'success' | 'danger'>('success')
-  const [endpoints, setEndpoints] = useState<AllEndpointResponse>([])
-  const [isEndpointsLoaded, setIsEndpointsLoaded] = useState(false)
   const [uniqueNameError, setUniqueNameError] = useState(false)
-  const getEndpoints = useFetch<AllEndpointResponse>(`${process.env.NEXT_PUBLIC_API_URL}/master`)
-  const postEndpoint = useFetch<AllEndpointResponse>(`${process.env.NEXT_PUBLIC_API_URL}/master`, {
+  const postEndpoint = useFetch<string>(`${process.env.NEXT_PUBLIC_API_URL}/master`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -29,15 +30,8 @@ export default function SidebarLayout() {
   })
 
   useEffect(() => {
-    init()
+    fetchEndpoints()
   }, [])
-
-  const init = async() => {
-    setIsEndpointsLoaded(false)
-    const { data } = await getEndpoints()
-    if (data) setEndpoints(data)
-    setIsEndpointsLoaded(true)
-  }
 
   const closeDrawer = () => {
     setName('')
@@ -57,14 +51,15 @@ export default function SidebarLayout() {
 
   const saveEndpoint = async () => {
     setUniqueNameError(false)
-    const { error } = await postEndpoint()
+    const { error, data } = await postEndpoint()
     if (error) {
       setToastType('danger')
       if (error.statusCode === 400) setUniqueNameError(true)
     } else {
       closeDrawer()
       setToastType('success')
-      init()
+      fetchEndpoints()
+      if (data) router.push(`/${data}`)
     }
     setToast(true)
   }
