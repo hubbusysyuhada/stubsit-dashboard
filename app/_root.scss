@@ -1,0 +1,83 @@
+:root {
+  --background: #202020;
+  --foreground: #FFFFF0;
+  --active-nav: #3A3127;
+  --hover-nav: #2E271F;
+  --orange: #FFAB4D;
+  --method-get: #27ae60;
+  --method-post: #f39c12;
+  --method-put: #3498db;
+  --method-delete: #e74c3c;
+  --method-patch: #9b59b6;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* COLORS */
+.method-get {
+  color: var(--method-get);
+}
+
+.method-post {
+  color: var(--method-post);
+}
+
+.method-put {
+  color: var(--method-put);
+}
+
+.method-delete, .error {
+  color: var(--method-delete);
+}
+
+.method-patch {
+  color: var(--method-patch);
+}
+
+button.primary {
+  color: var(--background) !important;
+  background-color: var(--orange) !important;
+  &:disabled {
+    background-color: #636B74 !important;
+    color: var(--foreground) !important;;
+  }
+}
+
+button.secondary {
+  color: var(--foreground) !important;
+  background-color: var(--hover-nav) !important;
+}
+
+#sidebar {
+  .nav-dropdown {
+    .content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-in-out;
+      &.open {
+        max-height: 328px;
+      }
+    }
+  }
+
+  .head {
+    user-select: none;
+  }
+
+  .nav {
+    transition: background 0.3s ease-in-out;
+    &:hover {
+      background-color: var(--hover-nav) !important;
+    }
+
+    &.active {
+      background-color: var(--active-nav) !important;
+    }
+  }
+}
