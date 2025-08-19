@@ -7,7 +7,7 @@ export default function Wrapper({ children }: { children: React.ReactNode }) {
   return <>
     <CssVarsProvider defaultMode="system" disableTransitionOnChange>
       <Sidebar/>
-      <div className="pt-7 px-4 w-full">
+      <div className="py-7 px-5 w-full">
         { children }
       </div>
     </CssVarsProvider>
