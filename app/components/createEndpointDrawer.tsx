@@ -58,7 +58,7 @@ export default function CreateEndpointDrawer(payload: CreateEndpointDrawerPropsT
     setToast(true)
   }
 
-  const closeSnackbar = (_: React.SyntheticEvent<any> | Event | null, reason: SnackbarCloseReason) => {
+  const closeSnackbar = (_: React.SyntheticEvent<unknown> | Event | null, reason: SnackbarCloseReason) => {
     if (reason === 'clickaway' || reason === 'escapeKeyDown') return
     setToast(false)
   }

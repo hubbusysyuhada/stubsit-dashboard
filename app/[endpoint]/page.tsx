@@ -7,7 +7,7 @@ import { MdPlaylistAddCheckCircle as CheckIcon, MdEdit, MdOutlineDelete } from "
 import { FaCopy } from "react-icons/fa";
 import { SiCurl } from "react-icons/si";
 import { notFound, useParams, useRouter } from "next/navigation"
-import { Dispatch, SetStateAction, useEffect, useState } from "react"
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react"
 import useNavigation from "@/store/useNavigation";
 import CenterLayout from "../components/center-layout";
 import Loading from "../components/loading";
@@ -29,16 +29,17 @@ export default function EndpointDetailPage() {
   const getEndpointDetail = useFetch<EndpointDetailType>(`${process.env.NEXT_PUBLIC_API_URL}/master/${slug}`)
   const deleteEndpoint = useFetch(`${process.env.NEXT_PUBLIC_API_URL}/master/${slug}`, { method: "DELETE" })
 
-  useEffect(() => {
-    init()
-  }, [])
-
-  const init = async () => {
+  const init = useCallback(async () => {
     setEndpoint(undefined)
     const { data } = await getEndpointDetail()
     if (!data) setIsInvalidSlug(true)
     setEndpoint(data)
-  }
+  }, [getEndpointDetail])
+
+  useEffect(() => {
+    init()
+  }, [init])
+
 
   const deleteConfirmed = async () => {
     setDisableDeleteModalBtn(true)

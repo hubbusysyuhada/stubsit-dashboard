@@ -6,8 +6,8 @@ import { Button, Snackbar, SnackbarCloseReason, Textarea } from "@mui/joy";
 import { MdPlaylistAddCheckCircle as CheckIcon, MdEdit } from "react-icons/md";
 import { FaCopy } from "react-icons/fa";
 import { SiCurl } from "react-icons/si";
-import { notFound, useParams, useRouter } from "next/navigation"
-import { Dispatch, SetStateAction, useEffect, useState } from "react"
+import { notFound, useParams } from "next/navigation"
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react"
 import CenterLayout from "../../components/center-layout";
 import Loading from "../../components/loading";
 import MethodBadge from "../../components/method";
@@ -23,16 +23,17 @@ export default function CallDetailPage() {
   const [openEditDrawer, setOpenEditDrawer] = useState(false)
   const getCallDetail = useFetch<CallDetailType>(`${process.env.NEXT_PUBLIC_API_URL}/master/${endpointSlug}/${callSlug}`)
 
-  useEffect(() => {
-    init()
-  }, [])
-
-  const init = async () => {
+  const init = useCallback(async () => {
     setCall(undefined)
     const { data } = await getCallDetail()
     if (!data) setIsInvalidSlug(true)
     setCall(data)
-  }
+  }, [getCallDetail])
+
+  useEffect(() => {
+    init()
+  }, [init])
+
 
   if (isInvalidSlug) return notFound()
   if (!call) return (

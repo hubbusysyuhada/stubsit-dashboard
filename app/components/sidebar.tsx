@@ -4,7 +4,7 @@ import Logo from '@/app/components/logo'
 import { CiSearch } from 'react-icons/ci'
 import { IoAdd } from 'react-icons/io5'
 import { FaRegCircleXmark as Cancel } from "react-icons/fa6";
-import { Input, Button, Skeleton, Textarea, Snackbar } from '@mui/joy'
+import { Input, Button, Skeleton } from '@mui/joy'
 import Menu from './menu'
 import { useEffect, useState } from 'react'
 import useNavigation from '@/store/useNavigation';
@@ -24,7 +24,7 @@ export default function SidebarLayout() {
 
   useEffect(() => {
     fetchEndpoints()
-  }, [])
+  }, [fetchEndpoints])
 
   useEffect(() => {
     setEndpoints(storeEndpoints)
@@ -32,7 +32,7 @@ export default function SidebarLayout() {
 
   useEffect(() => {
     setEndpoints(getFilteredEndpoints(debouncedKeyword))
-  }, [debouncedKeyword]);
+  }, [debouncedKeyword, getFilteredEndpoints]);
 
   const renderMenu = () => {
     if (!endpoints.length && !isEndpointsLoaded) return Array.from({ length: 5 }).map((_, index) => (

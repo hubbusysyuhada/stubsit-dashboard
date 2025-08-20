@@ -82,7 +82,7 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
     setToast(true)
   }
 
-  const closeSnackbar = (_: React.SyntheticEvent<any> | Event | null, reason: SnackbarCloseReason) => {
+  const closeSnackbar = (_: React.SyntheticEvent<unknown> | Event | null, reason: SnackbarCloseReason) => {
     if (reason === 'clickaway' || reason === 'escapeKeyDown') return
     setToast(false)
   }
@@ -160,7 +160,7 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
         </div>
         <div className="mt-3 flex">
           <p className="text-md text-medium min-w-[100px]">Status</p>
-          <Switch color={ !is_error ? 'success' : 'danger' } onChange={(e) => setIsError(!is_error)} variant="soft" />
+          <Switch color={ !is_error ? 'success' : 'danger' } onChange={() => setIsError(!is_error)} variant="soft" />
           <div className={`${is_error ? 'bg-[var(--method-delete)]' : 'bg-[var(--method-get)]'} text-[var(--background)] text-[10px] rounded-lg w-fit px-2 py-1 ml-3`}>
             {is_error ? 'error' : 'success'}
           </div>

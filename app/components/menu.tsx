@@ -17,7 +17,7 @@ export default function Menu(payload: BaseEndpointType) {
   const activedCallNav = useMemo(() => {
     if (!call || endpoint !== payload.slug) return null
     return payload.calls.find(c => c.slug === call)?.slug;
-  }, [endpoint, call, payload.slug]);
+  }, [endpoint, call, payload.slug, payload.calls]);
 
   const renderUrl = (callUrl: string) => {
     return `${window.location.host}/api/${payload.slug}/${callUrl}`
