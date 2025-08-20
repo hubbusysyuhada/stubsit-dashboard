@@ -32,8 +32,8 @@ export type CallDetailType = {
   slug: string;
   response_code: number;
   is_error: boolean;
-  error_message?: string;
-  response?: Record<string, any>
+  error_message: string | null;
+  response: Record<string, any> | null;
   endpoint: { slug: string }
 }
 

@@ -2,6 +2,7 @@ import { BaseEndpointType } from "@/types/global";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
 import MethodBadge from "./method";
+import { PiBracketsCurlyDuotone as APIIcon } from "react-icons/pi";
 
 export default function Menu(payload: BaseEndpointType) {
   const router = useRouter();
@@ -34,8 +35,9 @@ export default function Menu(payload: BaseEndpointType) {
 
   return <div className="nav-dropdown">
     <div className="head">
-      <div className={`mt-3 cursor-pointer px-3 py-2 rounded-lg nav ${isEndpointActive ? 'active' : ''}`} onClick={() => router.push(`/${payload.slug}`)}>
-        <p className="text-sm truncate">{payload.name}</p>
+      <div className={`flex items-center mt-3 cursor-pointer px-3 py-2 rounded-lg nav ${isEndpointActive ? 'active' : ''}`} onClick={() => router.push(`/${payload.slug}`)}>
+        <APIIcon className="text-sm" />
+        <p className="ml-2 text-sm truncate">{payload.name}</p>
       </div>
     </div>
     <div className={`content ${isEndpointActive || activedCallNav ? 'open' : ''}`}>

@@ -12,6 +12,7 @@ import CenterLayout from "../../components/center-layout";
 import Loading from "../../components/loading";
 import MethodBadge from "../../components/method";
 import Editor from '@monaco-editor/react';
+import EditCallDrawer from "@/app/components/editCallDrawer";
 
 export default function CallDetailPage() {
   const { endpoint: endpointSlug, call: callSlug } = useParams()
@@ -19,6 +20,7 @@ export default function CallDetailPage() {
   const [copyType, setCopyType] = useState<'URL' | 'cURL' | 'Response' | 'Error message'>('URL')
   const [call, setCall] = useState<CallDetailType>()
   const [isInvalidSlug, setIsInvalidSlug] = useState(false)
+  const [openEditDrawer, setOpenEditDrawer] = useState(false)
   const getCallDetail = useFetch<CallDetailType>(`${process.env.NEXT_PUBLIC_API_URL}/master/${endpointSlug}/${callSlug}`)
 
   useEffect(() => {
@@ -83,7 +85,7 @@ export default function CallDetailPage() {
         <div>
           <Textarea
             variant="outlined"
-            value={call.error_message}
+            value={call.error_message || ''}
             size='sm'
             className="w-[400px]"
             minRows={5}
@@ -100,7 +102,7 @@ export default function CallDetailPage() {
     return (
       <div className="flex mt-3">
         <p className="text-[16px] w-fit min-w-[148px]">Response</p>
-        <div className="w-[60%]">
+        <div className="w-[90%]">
           <Editor
             height="420px"
             defaultLanguage="json"
@@ -126,9 +128,10 @@ export default function CallDetailPage() {
     <div className="flex items-center justify-between">
       <MethodBadge type={call.method} fontSize="text-[32px]"/>
       <div className="flex-shrink-0">
-        <Button className="!mr-2 secondary" startDecorator={<MdEdit />} onClick={() => {}}>Edit</Button>
+        <Button className="!mr-2 secondary" startDecorator={<MdEdit />} onClick={() => setOpenEditDrawer(true)}>Edit</Button>
       </div>
     </div>
+
     <div className="flex flex-col items-start justify-between mt-5">
       <p className="text-[18px] w-fit">{process.env.NEXT_PUBLIC_API_URL}/api/{call.endpoint.slug}/{call.slug}</p>
       <div className="flex mt-3">
@@ -142,7 +145,6 @@ export default function CallDetailPage() {
       <p className="font-bold text-[14px]">{call.response_code}</p>
     </div>
 
-
     <div className="flex items-center mt-3">
       <p className="text-[16px] w-fit min-w-[148px]">Status</p>
       <div className={`mt-1 badge ${call.is_error ? 'bg-[var(--method-delete)]' : 'bg-[var(--method-get)]'} text-[var(--background)] text-[14px] rounded-lg w-fit px-2 py-1`}>
@@ -151,7 +153,6 @@ export default function CallDetailPage() {
     </div>
 
     { renderErrorMessage() }
-
     { renderResponse() }
 
     <Snackbar
@@ -175,5 +176,7 @@ export default function CallDetailPage() {
     >
       {copyType} has been copied to clipboard.
     </Snackbar>
+
+    <EditCallDrawer open={openEditDrawer} onClose={() => setOpenEditDrawer(false)} call={call} onSave={init}/>
   </div>
 }

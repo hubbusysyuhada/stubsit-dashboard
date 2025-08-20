@@ -122,6 +122,10 @@ export default function EndpointDetailPage() {
     set(false)
   }
 
+  const closeModal = () => {
+    if (!disableDeleteModalBtn) setOpenDeleteModal(false)
+  }
+
   return <>
     <div className="page-content">
       <div className="flex items-center justify-between">
@@ -157,7 +161,7 @@ export default function EndpointDetailPage() {
       </div>
     </div>
 
-    <Modal open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
+    <Modal open={openDeleteModal} onClose={closeModal}>
       <ModalDialog variant="outlined" className="!w-[400px] items-center">
         <DialogTitle className="foobar">Confirm Delete Endpoint</DialogTitle>
         <DialogContent>
@@ -177,6 +181,7 @@ export default function EndpointDetailPage() {
               color="neutral"
               loadingPosition='end'
               onClick={() => setOpenDeleteModal(false)}
+              disabled={disableDeleteModalBtn}
               variant="solid"
               className='w-full secondary !mt-4'
             >
