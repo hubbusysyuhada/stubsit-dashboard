@@ -2,16 +2,16 @@
 
 import useFetch from "@/helpers/useFetch";
 import useNavigation from "@/store/useNavigation";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Input, Button, Drawer, Textarea, Snackbar, SnackbarCloseReason } from '@mui/joy'
+import { Input, Button, Drawer, Textarea, Snackbar, SnackbarCloseReason, Select, Option } from '@mui/joy'
 import { MdPlaylistAddCheckCircle as CheckIcon, MdError } from "react-icons/md";
-import { EndpointDetailType } from "@/types/global";
 
-type EditEndpointDrawerPropsType = { onClose: () => void; open: boolean; endpoint: EndpointDetailType; onSave: () => void }
+type CreateEndpointDrawerPropsType = { onClose: () => void; open: boolean }
 
-export default function EditEndpointDrawer(payload: EditEndpointDrawerPropsType) {
+export default function CreateGroupDrawer(payload: CreateEndpointDrawerPropsType) {
   const router = useRouter()
+  const maxLength = 500
   const [openDrawer, setOpenDrawer] = useState(false)
   const [toast, setToast] = useState(false)
   const [toastType, setToastType] = useState<'success' | 'danger'>('success')
@@ -19,19 +19,16 @@ export default function EditEndpointDrawer(payload: EditEndpointDrawerPropsType)
   const [isLoading, setIsLoading] = useState(false)
   const [description, setDescription] = useState('')
   const [name, setName] = useState('')
-  const {  fetchEndpoints } = useNavigation()
+  const group = useParams()?.group
+  const { fetchGroups, groups } = useNavigation()
+
 
   useEffect(() => {
     if (payload.open) setOpenDrawer(true)
-  }, [payload.open]
-)
-  useEffect(() => {
-    setName(payload.endpoint.name)
-    setDescription(payload.endpoint.description)
-  }, [payload.endpoint])
+  }, [payload.open])
 
-  const updateEndpoint = useFetch<string>(`${process.env.NEXT_PUBLIC_API_URL}/master/${payload.endpoint.slug}`, {
-    method: 'PUT',
+  const postEndpoint = useFetch<string>(`${process.env.NEXT_PUBLIC_API_URL}/master`, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -40,26 +37,25 @@ export default function EditEndpointDrawer(payload: EditEndpointDrawerPropsType)
 
   const closeDrawer = (reason?: "backdropClick" | "escapeKeyDown" | "closeClick") => {
     if (reason === 'backdropClick' || reason === 'escapeKeyDown') return
-    setName(payload.endpoint.name)
-    setDescription(payload.endpoint.description)
+    setName('')
+    setDescription('')
     setOpenDrawer(false)
     setUniqueNameError(false)
     payload.onClose()
   }
 
-  const saveEndpoint = async () => {
+  const saveGroup = async () => {
     setUniqueNameError(false)
     setIsLoading(true)
-    const { error, data } = await updateEndpoint()
+    const { error, data } = await postEndpoint()
     if (error) {
       setToastType('danger')
       if (error.statusCode === 400) setUniqueNameError(true)
     } else {
       closeDrawer()
       setToastType('success')
-      fetchEndpoints()
-      if (data) router.push(`/${payload.endpoint.slug}`)
-      payload.onSave()
+      fetchGroups()
+      if (data) router.push(`/${data}`)
     }
     setIsLoading(false)
     setToast(true)
@@ -73,11 +69,11 @@ export default function EditEndpointDrawer(payload: EditEndpointDrawerPropsType)
   return <>
     <Drawer anchor='right' open={openDrawer} variant='soft' onClose={(_, reason) => closeDrawer(reason)}>
       <div className="p-8">
-        <p className="text-2xl">Edit Endpoint Details</p>
+        <p className="text-2xl">Create New Group</p>
         <div className="mt-9">
           <p className="text-md text-medium">Name</p>
           <Input
-            placeholder="Enter Endpoint name"
+            placeholder="Enter Group name"
             variant="outlined"
             value={name}
             color={uniqueNameError ? 'danger' : 'neutral'}
@@ -94,16 +90,16 @@ export default function EditEndpointDrawer(payload: EditEndpointDrawerPropsType)
         <div className="mt-2">
           <p className="text-md text-medium">Description</p>
           <Textarea
-            placeholder="Enter Endpoint description"
+            placeholder="Enter Group description"
             variant="outlined"
             value={description}
             size='md'
             minRows={5}
             className='mt-2'
-            onChange={(e) => e.target.value.length <= 250 && setDescription(e.target.value)}
+            onChange={(e) => e.target.value.length <= maxLength && setDescription(e.target.value)}
           />
           <div className="flex flex-row-reverse mt-2 mr-2">
-            <p className="text-xs">{description.length}/250</p>
+            <p className="text-xs">{description.length}/{maxLength}</p>
           </div>
         </div>
 
@@ -111,7 +107,7 @@ export default function EditEndpointDrawer(payload: EditEndpointDrawerPropsType)
           <Button
             color="neutral"
             loadingPosition='end'
-            onClick={saveEndpoint}
+            onClick={saveGroup}
             variant="solid"
             disabled={!name || isLoading}
             className='w-full primary'
@@ -154,7 +150,7 @@ export default function EditEndpointDrawer(payload: EditEndpointDrawerPropsType)
         </Button>
       }
     >
-      {toastType === 'success' ? 'Endpoint has been edited.' : 'Failed to edit Endpoint.'}
+      {toastType === 'success' ? 'Endpoint has been created.' : 'Failed to create Endpoint.'}
     </Snackbar>
   </>
 }

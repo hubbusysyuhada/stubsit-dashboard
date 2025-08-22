@@ -2,7 +2,7 @@
 
 import useFetch from "@/helpers/useFetch";
 import useNavigation from "@/store/useNavigation";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { Input, Button, Drawer, Textarea, Snackbar, SnackbarCloseReason, Switch } from '@mui/joy'
 import { MdPlaylistAddCheckCircle as CheckIcon, MdError } from "react-icons/md";
@@ -14,6 +14,7 @@ type EditCallDrawerPropsType = { onClose: () => void; open: boolean; call: CallD
 
 export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
   const router = useRouter()
+  const { group } = router.query
   const [openDrawer, setOpenDrawer] = useState(false)
   const [toast, setToast] = useState(false)
   const [toastType, setToastType] = useState<'success' | 'danger'>('success')
@@ -23,7 +24,7 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
   const [error_message, setErrorMessage] = useState<string | null>(null)
   const [response, setResponse] = useState<string | null>(null)
   const [isResponseValidJSON, setIsResponseValidJSON] = useState<boolean>(true)
-  const { fetchEndpoints } = useNavigation()
+  const { fetchGroups } = useNavigation()
 
   useEffect(() => {
     if (payload.open) setOpenDrawer(true)
@@ -34,6 +35,11 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
     return false
   }, [isResponseValidJSON, is_error, response_code, isLoading])
 
+  const parsedResponse = useMemo(() => {
+    if (isResponseValidJSON && response && !is_error) return JSON.parse(response as string)
+    return null
+  }, [isResponseValidJSON, is_error, response_code, isLoading])
+
   useEffect(() => {
     setResponseCode(payload.call.response_code)
     setIsError(payload.call.is_error)
@@ -41,7 +47,7 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
     if (payload.call.response) setResponse(JSON.stringify(payload.call.response, null, 2))
   }, [payload.call])
 
-  const updateCall = useFetch<string>(`${process.env.NEXT_PUBLIC_API_URL}/master/${payload.call.endpoint.slug}/${payload.call.slug}`, {
+  const updateCall = useFetch<string>(`${process.env.NEXT_PUBLIC_API_URL}/master/${group}/${payload.call.endpoint.slug}/${payload.call.slug}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -51,7 +57,7 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
       response_code,
       is_error,
       error_message: is_error ? error_message : null,
-      response: !is_error && response ? JSON.parse(response) : null,
+      response: parsedResponse,
     }),
   })
 
@@ -72,8 +78,9 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
     else {
       closeDrawer()
       setToastType('success')
-      fetchEndpoints()
-      if (data) router.push(`/${payload.call.endpoint.slug}/${payload.call.slug}`)
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      fetchGroups()
+      if (data) router.push(`/${group}/${payload.call.endpoint.slug}/${payload.call.slug}`)
       payload.onSave()
       if (is_error) setResponse(null)
       else setErrorMessage(null)

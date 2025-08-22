@@ -1,46 +1,48 @@
 'use client'
 
-import Logo from '@/app/components/logo'
+import Logo from '@/components/logo'
 import { CiSearch } from 'react-icons/ci'
-import { IoAdd } from 'react-icons/io5'
 import { FaRegCircleXmark as Cancel } from "react-icons/fa6";
-import { Input, Button, Skeleton } from '@mui/joy'
+import { PiBracketsCurlyDuotone as APIIcon, PiFolderFill as FolderIcon } from "react-icons/pi";
+import { Input, Button, Skeleton, ButtonGroup } from '@mui/joy'
 import Menu from './menu'
 import { useEffect, useState } from 'react'
 import useNavigation from '@/store/useNavigation';
 import CreateEndpointDrawer from './createEndpointDrawer'
 import { useRouter } from 'next/navigation'
-import { AllEndpointResponse } from '@/types/global'
+import { AllGroupResponse } from '@/types/global'
 import useDebounce from '@/helpers/useDebounce'
+import CreateGroupDrawer from './createGroupDrawer';
 
 export default function SidebarLayout() {
   const router = useRouter()
-  const { endpoints: storeEndpoints, isEndpointsLoaded, fetchEndpoints, getFilteredEndpoints } = useNavigation()
-  const [endpoints, setEndpoints] = useState<AllEndpointResponse>([])
-  const [openCreateDrawer, setOpenCreateDrawer] = useState(false)
+  const { groups: storeGroups, isGroupsLoaded, fetchGroups, getFilteredGroups } = useNavigation()
+  const [groups, setGroups] = useState<AllGroupResponse>([])
+  const [openCreatEndpointDrawer, setOpenCreateEndpointDrawer] = useState(false)
+  const [openCreatGroupDrawer, setOpenCreateGroupDrawer] = useState(false)
 
   const [keyword, setKeyword] = useState('');
   const debouncedKeyword = useDebounce(keyword, 500);
 
   useEffect(() => {
-    fetchEndpoints()
-  }, [fetchEndpoints])
+    fetchGroups()
+  }, [fetchGroups])
 
   useEffect(() => {
-    setEndpoints(storeEndpoints)
-  }, [storeEndpoints])
+    setGroups(storeGroups)
+  }, [storeGroups])
 
   useEffect(() => {
-    setEndpoints(getFilteredEndpoints(debouncedKeyword))
-  }, [debouncedKeyword, getFilteredEndpoints]);
+    setGroups(getFilteredGroups(debouncedKeyword))
+  }, [debouncedKeyword, getFilteredGroups]);
 
   const renderMenu = () => {
-    if (!endpoints.length && !isEndpointsLoaded) return Array.from({ length: 5 }).map((_, index) => (
+    if (!groups.length && !isGroupsLoaded) return Array.from({ length: 5 }).map((_, index) => (
       <div className="w-full mt-4 h-[36px] rounded-lg relative" key={index}>
         <Skeleton loading animation="wave"/>
       </div>
     ))
-    return endpoints?.map((endpoint, index) => <Menu {...endpoint} key={'menu-' + index} />)
+    return groups?.map((group, index) => <Menu {...group} key={'menu-' + index} />)
   }
 
   return (
@@ -67,22 +69,35 @@ export default function SidebarLayout() {
         </div>
 
         <div className="footer">
-          <Button
-            color="neutral"
-            onClick={() => setOpenCreateDrawer(true)}
-            variant="solid"
-            className='w-full primary'
-            startDecorator={<IoAdd />}
-          >
-            New Endpoint
-          </Button>
+          <ButtonGroup>
+            <Button
+              color="neutral"
+              onClick={() => setOpenCreateGroupDrawer(true)}
+              variant="solid"
+              className='w-full primary'
+              startDecorator={<FolderIcon />}
+            >
+              New Group
+            </Button>
+            <Button
+              color="neutral"
+              onClick={() => setOpenCreateEndpointDrawer(true)}
+              variant="solid"
+              className='w-full primary'
+              startDecorator={<APIIcon />}
+            >
+              New Endpoint
+            </Button>
+            
+          </ButtonGroup>
           <div className="flex justify-center mt-3">
             <p className="text-xs">© 2025 Hubbusysyuhada</p>
           </div>
         </div>
       </div>
 
-      <CreateEndpointDrawer open={openCreateDrawer} onClose={() => setOpenCreateDrawer(false)} />
+      <CreateEndpointDrawer open={openCreatEndpointDrawer} onClose={() => setOpenCreateEndpointDrawer(false)} />
+      <CreateGroupDrawer open={openCreatGroupDrawer} onClose={() => setOpenCreateGroupDrawer(false)} />
     </>
   )
 }

@@ -6,18 +6,19 @@ import { Button, Card, DialogContent, DialogTitle, IconButton, Modal, ModalDialo
 import { MdPlaylistAddCheckCircle as CheckIcon, MdEdit, MdOutlineDelete } from "react-icons/md";
 import { FaCopy } from "react-icons/fa";
 import { SiCurl } from "react-icons/si";
-import { notFound, useParams, useRouter } from "next/navigation"
+import { notFound } from "next/navigation"
+import { useRouter } from "next/router"
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react"
 import useNavigation from "@/store/useNavigation";
-import CenterLayout from "../components/center-layout";
-import Loading from "../components/loading";
-import MethodBadge from "../components/method";
-import EditEndpointDrawer from "../components/editEndpointDrawer";
+import CenterLayout from "@/components/center-layout";
+import Loading from "@/components/loading";
+import MethodBadge from "@/components/method";
+import EditEndpointDrawer from "@/components/editEndpointDrawer";
 
 export default function EndpointDetailPage() {
   const router = useRouter()
-  const { endpoint: slug } = useParams()
-  const { fetchEndpoints } = useNavigation()
+  const { endpoint: slug, group: groupSlug } = router.query
+  const { fetchGroups } = useNavigation()
   const [deleteToast, setDeleteToast] = useState(false)
   const [copyToast, setCopyToast] = useState(false)
   const [urlType, setUrlType] = useState<'URL' | 'cURL'>('URL')
@@ -26,27 +27,29 @@ export default function EndpointDetailPage() {
   const [endpoint, setEndpoint] = useState<EndpointDetailType>()
   const [isInvalidSlug, setIsInvalidSlug] = useState(false)
   const [openEditDrawer, setOpenEditDrawer] = useState(false)
-  const getEndpointDetail = useFetch<EndpointDetailType>(`${process.env.NEXT_PUBLIC_API_URL}/master/${slug}`)
-  const deleteEndpoint = useFetch(`${process.env.NEXT_PUBLIC_API_URL}/master/${slug}`, { method: "DELETE" })
+
+  const getEndpointDetail = useFetch<EndpointDetailType>(`${process.env.NEXT_PUBLIC_API_URL}/master/${groupSlug}/${slug}`)
+  const deleteEndpoint = useFetch(`${process.env.NEXT_PUBLIC_API_URL}/master/${groupSlug}/${slug}`, { method: "DELETE" })
 
   const init = useCallback(async () => {
-    setEndpoint(undefined)
-    const { data } = await getEndpointDetail()
-    if (!data) setIsInvalidSlug(true)
-    setEndpoint(data)
-  }, [getEndpointDetail])
+    if (slug && groupSlug) {
+      setEndpoint(undefined)
+      const { data } = await getEndpointDetail()
+      if (!data) setIsInvalidSlug(true)
+      setEndpoint(data)
+    }
+  }, [getEndpointDetail, router])
 
   useEffect(() => {
     init()
   }, [init])
 
-
   const deleteConfirmed = async () => {
     setDisableDeleteModalBtn(true)
     await deleteEndpoint()
-    router.push('/')
     setDeleteToast(true)
-    await fetchEndpoints()
+    router.push(`/${groupSlug}`)
+    await fetchGroups()
   }
 
   if (isInvalidSlug) return notFound()
@@ -76,7 +79,7 @@ export default function EndpointDetailPage() {
   }
 
   const goToCallDetails = (callSlug: string) => {
-    router.push(`/${endpoint.slug}/${callSlug}`)
+    router.push(`/${groupSlug}/${endpoint.slug}/${callSlug}`)
   }
 
   const renderCalls = () => {
@@ -88,16 +91,16 @@ export default function EndpointDetailPage() {
             <p className="m-0 truncate flex-1">{process.env.NEXT_PUBLIC_API_URL}/api/{endpoint.slug}/{call.slug}</p>
           </div>
           <div className="flex-shrink-0">
-            <IconButton variant="soft" size="sm" className="secondary !mr-2" onClick={() => copyAsCurl(call.slug, call.method)}>
-              <Tooltip title="Copy as cURL" placement="bottom" variant="solid">
+            <Tooltip title="Copy as cURL" placement="bottom" variant="solid">
+              <IconButton variant="soft" size="sm" className="secondary !mr-2" onClick={() => copyAsCurl(call.slug, call.method)}>
                 <SiCurl size='14'/>
-              </Tooltip>
-            </IconButton>
-            <IconButton variant="soft" size="sm" className="secondary" onClick={() => copyAsUrl(call.slug)}>
-              <Tooltip title="Copy as URL" placement="bottom" variant="solid">
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Copy as URL" placement="bottom" variant="solid">
+              <IconButton variant="soft" size="sm" className="secondary" onClick={() => copyAsUrl(call.slug)}>
                 <FaCopy size='14'/>
-              </Tooltip>
-            </IconButton>
+              </IconButton>
+            </Tooltip>
           </div>
         </div>
         <div className="flex items-center">
@@ -167,7 +170,7 @@ export default function EndpointDetailPage() {
         <DialogTitle className="foobar">Confirm Delete Endpoint</DialogTitle>
         <DialogContent>
           <div className="mt-2">
-            <p className="m-0 text-center text-sm">Are you sure you want to delete this API? This action cannot be undone, and all associated data will be permanently removed.</p>
+            <p className="m-0 text-center text-sm">Are you sure you want to delete this Endpoint? This action cannot be undone, and all associated data will be permanently removed.</p>
             <Button
               color="neutral"
               loadingPosition='end'

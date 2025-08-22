@@ -1,31 +1,40 @@
-import useFetch from '@/helpers/useFetch'
-import { AllEndpointResponse, BaseEndpointType } from '@/types/global'
+import { AllGroupResponse } from '@/types/global'
 import { create } from 'zustand'
 
 type UseNavigationType = {
-  endpoints: AllEndpointResponse;
-  isEndpointsLoaded: boolean;
-  fetchEndpoints: () => Promise<void>;
-  getFilteredEndpoints: (keyword: string) => AllEndpointResponse;
+  groups: AllGroupResponse;
+  isGroupsLoaded: boolean;
+  fetchGroups: () => Promise<void>;
+  getFilteredGroups: (keyword: string) => AllGroupResponse;
 }
 
 export default create<UseNavigationType>()((set, get) => ({
-  endpoints: [],
-  isEndpointsLoaded: false,
-  fetchEndpoints: async () => {
-    set({ isEndpointsLoaded: false })
+  groups: [],
+  isGroupsLoaded: false,
+  fetchGroups: async () => {
+    set({ isGroupsLoaded: false })
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/master`)
-    const { data: endpoints }: { data: AllEndpointResponse } = await response.json()
-    if (endpoints) set({ endpoints })
-    set({ isEndpointsLoaded: true })
+    const { data: groups }: { data: AllGroupResponse } = await response.json()
+    if (groups) {
+      groups.forEach(group => {
+        group.endpoints.forEach(endpoint => {
+          endpoint.calls.sort((prev, next) => prev.id - next.id)
+        })
+      })
+      set({ groups })
+    }
+    set({ isGroupsLoaded: true })
   },
-  getFilteredEndpoints: (keyword: string) => {
-    const all = get().endpoints
+  getFilteredGroups: (keyword: string) => {
+    const all = get().groups
     if (!keyword) return all
-    return all.filter(endpoint => {
-      const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/${endpoint.slug}`
-      const urls: string[] = [endpoint.name.toLowerCase()]
-      endpoint.calls.forEach(call => urls.push(`${baseUrl}/${call.slug}`))
+    return all.filter(group => {
+      const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/${group.slug}`
+      const urls: string[] = [group.name.toLowerCase()]
+      group.endpoints.forEach(endpoint => {
+        urls.push(endpoint.name.toLowerCase())
+        endpoint.calls.forEach(call => urls.push(`${baseUrl}/${call.slug}`))
+      })
       return urls.some(url => url.includes(keyword))
     })
   },

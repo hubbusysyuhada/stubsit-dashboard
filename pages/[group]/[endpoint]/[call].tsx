@@ -8,27 +8,32 @@ import { FaCopy } from "react-icons/fa";
 import { SiCurl } from "react-icons/si";
 import { notFound, useParams } from "next/navigation"
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react"
-import CenterLayout from "../../components/center-layout";
-import Loading from "../../components/loading";
-import MethodBadge from "../../components/method";
+import CenterLayout from "@/components/center-layout";
+import Loading from "@/components/loading";
+import MethodBadge from "@/components/method";
 import Editor from '@monaco-editor/react';
-import EditCallDrawer from "@/app/components/editCallDrawer";
+import EditCallDrawer from "@/components/editCallDrawer";
+import { useRouter } from "next/router";
 
 export default function CallDetailPage() {
-  const { endpoint: endpointSlug, call: callSlug } = useParams()
+  const router = useRouter()
+  const { endpoint: endpointSlug, call: callSlug, group } = router.query
   const [copyToast, setCopyToast] = useState(false)
   const [copyType, setCopyType] = useState<'URL' | 'cURL' | 'Response' | 'Error message'>('URL')
   const [call, setCall] = useState<CallDetailType>()
   const [isInvalidSlug, setIsInvalidSlug] = useState(false)
   const [openEditDrawer, setOpenEditDrawer] = useState(false)
-  const getCallDetail = useFetch<CallDetailType>(`${process.env.NEXT_PUBLIC_API_URL}/master/${endpointSlug}/${callSlug}`)
+  const getCallDetail = useFetch<CallDetailType>(`${process.env.NEXT_PUBLIC_API_URL}/master/${group}/${endpointSlug}/${callSlug}`)
 
   const init = useCallback(async () => {
-    setCall(undefined)
-    const { data } = await getCallDetail()
-    if (!data) setIsInvalidSlug(true)
-    setCall(data)
-  }, [getCallDetail])
+    console.log("sini", callSlug);
+    if (callSlug) {
+      setCall(undefined)
+      const { data } = await getCallDetail()
+      if (!data) setIsInvalidSlug(true)
+      setCall(data)
+    }
+  }, [getCallDetail, router])
 
   useEffect(() => {
     init()

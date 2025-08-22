@@ -9,10 +9,7 @@ export type MethodType = "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
 export type BaseEndpointType = {
   name: string;
   slug: string;
-  calls: {
-    method: MethodType
-    slug: string
-  }[]
+  calls: ChildCallType[]
 }
 
 export type EndpointDetailType = {
@@ -27,6 +24,23 @@ export type EndpointDetailType = {
   }[]
 }
 
+type ChildCallType = {
+  method: MethodType;
+  slug: string;
+}
+
+export type GroupDetailType = {
+  name: string;
+  description?: string;
+  slug: string;
+  endpoints: {
+    name: string;
+    description: string;
+    slug: string;
+    calls: Array<ChildCallType & { id: number }>
+  }[]
+}
+
 export type CallDetailType = {
   method: MethodType;
   slug: string;
@@ -38,3 +52,4 @@ export type CallDetailType = {
 }
 
 export type AllEndpointResponse = BaseEndpointType[]
+export type AllGroupResponse = GroupDetailType[]

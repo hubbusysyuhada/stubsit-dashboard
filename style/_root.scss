@@ -11,6 +11,12 @@
   --method-patch: #9b59b6;
 }
 
+html,
+body,
+#__next {
+  width: 100%;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
@@ -56,15 +62,17 @@ button.secondary {
 }
 
 /* SIDEBAR */
-
 #sidebar {
   .nav-dropdown {
     .content {
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.3s ease-in-out;
-      &.open {
-        max-height: 328px;
+      transition: max-height 0.5s ease-in-out;
+      &.open.calls {
+        max-height: 280px;
+      }
+      &.open.endpoints {
+        max-height: 660px;
       }
     }
   }
