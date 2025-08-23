@@ -2,7 +2,7 @@
 
 import Logo from '@/components/logo'
 import { CiSearch } from 'react-icons/ci'
-import { FaRegCircleXmark as Cancel } from "react-icons/fa6";
+import { FaRegCircleXmark as Cancel, FaLinkedin } from "react-icons/fa6";
 import { PiBracketsCurlyDuotone as APIIcon, PiFolderFill as FolderIcon } from "react-icons/pi";
 import { Input, Button, Skeleton, ButtonGroup } from '@mui/joy'
 import Menu from './menu'
@@ -23,6 +23,8 @@ export default function SidebarLayout() {
 
   const [keyword, setKeyword] = useState('');
   const debouncedKeyword = useDebounce(keyword, 500);
+
+  const toLinkedin = () => window.open('https://www.linkedin.com/in/hubbusysyuhada/', '_blank')?.focus()
 
   useEffect(() => {
     fetchGroups()
@@ -91,7 +93,8 @@ export default function SidebarLayout() {
             
           </ButtonGroup>
           <div className="flex justify-center mt-3">
-            <p className="text-xs">© 2025 Hubbusysyuhada</p>
+            <p className="text-xs mr-2">© 2025 Hubbusysyuhada</p>
+            <FaLinkedin className='hover:cursor-pointer' onClick={toLinkedin}/>
           </div>
         </div>
       </div>
