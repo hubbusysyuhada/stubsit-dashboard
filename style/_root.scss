@@ -1,9 +1,9 @@
 :root {
   --background: #202020;
-  --foreground: #FFFFF0;
-  --active-nav: #3A3127;
-  --hover-nav: #2E271F;
-  --orange: #FFAB4D;
+  --foreground: #fffff0;
+  --active-nav: #3a3127;
+  --hover-nav: #2e271f;
+  --orange: #ffab4d;
   --method-get: #27ae60;
   --method-post: #f39c12;
   --method-put: #3498db;
@@ -38,7 +38,8 @@ body {
   color: var(--method-put);
 }
 
-.method-delete, .error {
+.method-delete,
+.error {
   color: var(--method-delete);
 }
 
@@ -51,8 +52,8 @@ button.primary {
   color: var(--background) !important;
   background-color: var(--orange) !important;
   &:disabled {
-    background-color: #636B74 !important;
-    color: var(--foreground) !important;;
+    background-color: #636b74 !important;
+    color: var(--foreground) !important;
   }
 }
 
@@ -96,24 +97,54 @@ button.secondary {
 /* LOADING ANIMATION */
 .loader {
   width: 45px;
-  aspect-ratio: .75;
+  aspect-ratio: 0.75;
   --c: no-repeat linear-gradient(var(--orange) 0 0);
-  background: 
-    var(--c) 0%   50%,
-    var(--c) 50%  50%,
+  background:
+    var(--c) 0% 50%,
+    var(--c) 50% 50%,
     var(--c) 100% 50%;
   animation: l7 1s infinite linear alternate;
 }
 @keyframes l7 {
-  0%  {background-size: 20% 50% ,20% 50% ,20% 50% }
-  20% {background-size: 20% 20% ,20% 50% ,20% 50% }
-  40% {background-size: 20% 100%,20% 20% ,20% 50% }
-  60% {background-size: 20% 50% ,20% 100%,20% 20% }
-  80% {background-size: 20% 50% ,20% 50% ,20% 100%}
-  100%{background-size: 20% 50% ,20% 50% ,20% 50% }
+  0% {
+    background-size:
+      20% 50%,
+      20% 50%,
+      20% 50%;
+  }
+  20% {
+    background-size:
+      20% 20%,
+      20% 50%,
+      20% 50%;
+  }
+  40% {
+    background-size:
+      20% 100%,
+      20% 20%,
+      20% 50%;
+  }
+  60% {
+    background-size:
+      20% 50%,
+      20% 100%,
+      20% 20%;
+  }
+  80% {
+    background-size:
+      20% 50%,
+      20% 50%,
+      20% 100%;
+  }
+  100% {
+    background-size:
+      20% 50%,
+      20% 50%,
+      20% 50%;
+  }
 }
 
 /* FONTS */
 .bungee {
-  font-family: "Bungee", sans-serif;
+  font-family: 'Bungee', sans-serif;
 }

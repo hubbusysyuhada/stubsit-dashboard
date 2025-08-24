@@ -1,16 +1,16 @@
 export type CommonLayoutParamsType = Readonly<{
-  children: React.ReactNode
-}>
+  children: React.ReactNode;
+}>;
 
-export type ExtendableLayoutParamsType<T> = CommonLayoutParamsType & T
+export type ExtendableLayoutParamsType<T> = CommonLayoutParamsType & T;
 
-export type MethodType = "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
+export type MethodType = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 export type BaseEndpointType = {
   name: string;
   slug: string;
-  calls: ChildCallType[]
-}
+  calls: ChildCallType[];
+};
 
 export type EndpointDetailType = {
   name: string;
@@ -18,16 +18,16 @@ export type EndpointDetailType = {
   slug: string;
   calls: {
     is_error: boolean;
-    method: MethodType
+    method: MethodType;
     response_code: number;
-    slug: string
-  }[]
-}
+    slug: string;
+  }[];
+};
 
 type ChildCallType = {
   method: MethodType;
   slug: string;
-}
+};
 
 export type GroupDetailType = {
   name: string;
@@ -37,9 +37,9 @@ export type GroupDetailType = {
     name: string;
     description: string;
     slug: string;
-    calls: Array<ChildCallType & { id: number }>
-  }[]
-}
+    calls: Array<ChildCallType & { id: number }>;
+  }[];
+};
 
 export type CallDetailType = {
   method: MethodType;
@@ -48,8 +48,8 @@ export type CallDetailType = {
   is_error: boolean;
   error_message: string | null;
   response: Record<string, any> | null;
-  endpoint: { slug: string }
-}
+  endpoint: { slug: string };
+};
 
-export type AllEndpointResponse = BaseEndpointType[]
-export type AllGroupResponse = GroupDetailType[]
+export type AllEndpointResponse = BaseEndpointType[];
+export type AllGroupResponse = GroupDetailType[];
