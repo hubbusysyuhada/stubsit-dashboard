@@ -2,7 +2,7 @@ import useToast from '@/store/useToast';
 import { Button, Snackbar, SnackbarCloseReason } from '@mui/joy';
 import { MdPlaylistAddCheckCircle as CheckIcon, MdError } from 'react-icons/md';
 
-export default function toast() {
+export default function Toast() {
   const { removeToast, toast } = useToast();
   if (!toast) return <></>;
   const { id, isOpen, text, variant } = toast;
