@@ -10,11 +10,10 @@ import {
   IconButton,
   Modal,
   ModalDialog,
-  Snackbar,
   SnackbarCloseReason,
   Tooltip,
 } from '@mui/joy';
-import { MdPlaylistAddCheckCircle as CheckIcon, MdEdit, MdOutlineDelete } from 'react-icons/md';
+import { MdEdit, MdOutlineDelete } from 'react-icons/md';
 import { FaCopy } from 'react-icons/fa';
 import { SiCurl } from 'react-icons/si';
 import { notFound } from 'next/navigation';
@@ -25,14 +24,13 @@ import CenterLayout from '@/components/center-layout';
 import Loading from '@/components/loading';
 import MethodBadge from '@/components/method';
 import EditEndpointDrawer from '@/components/editEndpointDrawer';
+import useToast from '@/store/useToast';
 
 export default function EndpointDetailPage() {
   const router = useRouter();
   const { endpoint: slug, group: groupSlug } = router.query;
   const { fetchGroups } = useNavigation();
-  const [deleteToast, setDeleteToast] = useState(false);
-  const [copyToast, setCopyToast] = useState(false);
-  const [urlType, setUrlType] = useState<'URL' | 'cURL'>('URL');
+  const { addToast } = useToast();
   const [disableDeleteModalBtn, setDisableDeleteModalBtn] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [endpoint, setEndpoint] = useState<EndpointDetailType>();
@@ -63,7 +61,11 @@ export default function EndpointDetailPage() {
   const deleteConfirmed = async () => {
     setDisableDeleteModalBtn(true);
     await deleteEndpoint();
-    setDeleteToast(true);
+    addToast({
+      id: 'delete-endpoint-toast',
+      variant: 'success',
+      text: 'Endpoint has been deleted.',
+    });
     router.push(`/${groupSlug}`);
     await fetchGroups();
   };
@@ -80,8 +82,11 @@ export default function EndpointDetailPage() {
     navigator.clipboard.writeText(
       `${process.env.NEXT_PUBLIC_API_URL}/api/${endpoint.slug}/${callSlug}`
     );
-    setUrlType('URL');
-    setCopyToast(true);
+    addToast({
+      id: 'copy-endpoint-url-toast',
+      variant: 'success',
+      text: 'URL has been copied to clipboard.',
+    });
   };
 
   const copyAsCurl = (callSlug: string, method: MethodType) => {
@@ -93,8 +98,11 @@ export default function EndpointDetailPage() {
     }
     commandParts.push(`"${url}"`);
     navigator.clipboard.writeText(commandParts.join(' '));
-    setUrlType('cURL');
-    setCopyToast(true);
+    addToast({
+      id: 'copy-endpoint-url-toast',
+      variant: 'success',
+      text: 'cURL has been copied to clipboard.',
+    });
   };
 
   const goToCallDetails = (callSlug: string) => {
@@ -230,40 +238,6 @@ export default function EndpointDetailPage() {
           </DialogContent>
         </ModalDialog>
       </Modal>
-
-      <Snackbar
-        variant="soft"
-        color="success"
-        open={deleteToast}
-        onClose={(_, reason) => closeSnackbar(reason, setDeleteToast)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        startDecorator={<CheckIcon color="green" size={24} />}
-        autoHideDuration={1500}
-        endDecorator={
-          <Button onClick={() => setDeleteToast(false)} size="sm" variant="soft" color="success">
-            Dismiss
-          </Button>
-        }
-      >
-        Endpoint has been deleted.
-      </Snackbar>
-
-      <Snackbar
-        variant="soft"
-        color="success"
-        open={copyToast}
-        onClose={(_, reason) => closeSnackbar(reason, setCopyToast)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        startDecorator={<CheckIcon color="green" size={24} />}
-        autoHideDuration={1500}
-        endDecorator={
-          <Button onClick={() => setCopyToast(false)} size="sm" variant="soft" color="success">
-            Dismiss
-          </Button>
-        }
-      >
-        {urlType} has been copied to clipboard.
-      </Snackbar>
 
       <EditEndpointDrawer
         open={openEditDrawer}

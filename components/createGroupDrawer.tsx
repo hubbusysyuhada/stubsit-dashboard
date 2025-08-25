@@ -15,15 +15,15 @@ import {
   Option,
 } from '@mui/joy';
 import { MdPlaylistAddCheckCircle as CheckIcon, MdError } from 'react-icons/md';
+import useToast from '@/store/useToast';
 
 type CreateEndpointDrawerPropsType = { onClose: () => void; open: boolean };
 
 export default function CreateGroupDrawer(payload: CreateEndpointDrawerPropsType) {
   const router = useRouter();
+  const { addToast } = useToast();
   const maxLength = 500;
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [toast, setToast] = useState(false);
-  const [toastType, setToastType] = useState<'success' | 'danger'>('success');
   const [uniqueNameError, setUniqueNameError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [description, setDescription] = useState('');
@@ -57,16 +57,19 @@ export default function CreateGroupDrawer(payload: CreateEndpointDrawerPropsType
     setIsLoading(true);
     const { error, data } = await postEndpoint();
     if (error) {
-      setToastType('danger');
       if (error.statusCode === 400) setUniqueNameError(true);
     } else {
       closeDrawer();
-      setToastType('success');
+      await new Promise((resolve) => setTimeout(resolve, 300));
       fetchGroups();
       if (data) router.push(`/${data}`);
     }
     setIsLoading(false);
-    setToast(true);
+    addToast({
+      id: 'create-group-toast',
+      text: error ? 'Failed to create Group.' : 'Group has been created.',
+      variant: error ? 'danger' : 'success',
+    });
   };
 
   const closeSnackbar = (
@@ -74,7 +77,6 @@ export default function CreateGroupDrawer(payload: CreateEndpointDrawerPropsType
     reason: SnackbarCloseReason
   ) => {
     if (reason === 'clickaway' || reason === 'escapeKeyDown') return;
-    setToast(false);
   };
 
   return (
@@ -150,29 +152,6 @@ export default function CreateGroupDrawer(payload: CreateEndpointDrawerPropsType
           </div>
         </div>
       </Drawer>
-
-      <Snackbar
-        variant="soft"
-        color={toastType}
-        open={toast}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        startDecorator={
-          toastType === 'success' ? (
-            <CheckIcon color="green" size={24} />
-          ) : (
-            <MdError color="red" size={24} />
-          )
-        }
-        autoHideDuration={1500}
-        endDecorator={
-          <Button onClick={() => setToast(false)} size="sm" variant="soft" color={toastType}>
-            Dismiss
-          </Button>
-        }
-      >
-        {toastType === 'success' ? 'Endpoint has been created.' : 'Failed to create Endpoint.'}
-      </Snackbar>
     </>
   );
 }

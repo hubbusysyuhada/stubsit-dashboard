@@ -4,19 +4,10 @@ import useFetch from '@/helpers/useFetch';
 import useNavigation from '@/store/useNavigation';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import {
-  Input,
-  Button,
-  Drawer,
-  Textarea,
-  Snackbar,
-  SnackbarCloseReason,
-  Select,
-  Option,
-} from '@mui/joy';
-import { MdPlaylistAddCheckCircle as CheckIcon, MdError } from 'react-icons/md';
+import { Input, Button, Drawer, Textarea, SnackbarCloseReason, Option } from '@mui/joy';
 import { GroupDetailType } from '@/types/global';
 import { useRouter } from 'next/router';
+import useToast from '@/store/useToast';
 
 type EditGroupDrawerPropsType = {
   onClose: () => void;
@@ -27,10 +18,9 @@ type EditGroupDrawerPropsType = {
 
 export default function EditGroupDrawer(payload: EditGroupDrawerPropsType) {
   const router = useRouter();
+  const { addToast } = useToast();
   const maxLength = 500;
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [toast, setToast] = useState(false);
-  const [toastType, setToastType] = useState<'success' | 'danger'>('success');
   const [uniqueNameError, setUniqueNameError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [description, setDescription] = useState<string>();
@@ -46,7 +36,7 @@ export default function EditGroupDrawer(payload: EditGroupDrawerPropsType) {
     setDescription(payload.group.description);
   }, [payload.group]);
 
-  const updateEndpoint = useFetch<string>(`${process.env.NEXT_PUBLIC_API_URL}/master/${group}`, {
+  const updateGroup = useFetch<string>(`${process.env.NEXT_PUBLIC_API_URL}/master/${group}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -63,40 +53,25 @@ export default function EditGroupDrawer(payload: EditGroupDrawerPropsType) {
     payload.onClose();
   };
 
-  const saveEndpoint = async () => {
+  const saveGroup = async () => {
     setUniqueNameError(false);
     setIsLoading(true);
-    const { error, data } = await updateEndpoint();
+    const { error, data } = await updateGroup();
     if (error) {
-      setToastType('danger');
       if (error.statusCode === 400) setUniqueNameError(true);
     } else {
       closeDrawer();
-      setToastType('success');
+      await new Promise((resolve) => setTimeout(resolve, 300));
       fetchGroups();
-      // toast ga muncul
       if (data) router.push(`/${group}`);
       payload.onSave();
     }
     setIsLoading(false);
-    setToast(true);
-  };
-
-  const closeSnackbar = (
-    _: React.SyntheticEvent<unknown> | Event | null,
-    reason: SnackbarCloseReason
-  ) => {
-    if (reason === 'clickaway' || reason === 'escapeKeyDown') return;
-    setToast(false);
-  };
-
-  const renderOptions = () => {
-    if (!groups.length) return <></>;
-    return groups.map((group) => (
-      <Option value={group.slug} key={group.slug}>
-        {group.name}
-      </Option>
-    ));
+    addToast({
+      id: 'edit-group-toast',
+      text: error ? 'Failed to edit Group.' : 'Group has been edited.',
+      variant: error ? 'danger' : 'success',
+    });
   };
 
   return (
@@ -108,11 +83,11 @@ export default function EditGroupDrawer(payload: EditGroupDrawerPropsType) {
         onClose={(_, reason) => closeDrawer(reason)}
       >
         <div className="p-8">
-          <p className="text-2xl">Edit Endpoint Details</p>
+          <p className="text-2xl">Edit Group Details</p>
           <div className="mt-9">
             <p className="text-md text-medium">Name</p>
             <Input
-              placeholder="Enter Endpoint name"
+              placeholder="Enter Group name"
               variant="outlined"
               value={name}
               color={uniqueNameError ? 'danger' : 'neutral'}
@@ -131,7 +106,7 @@ export default function EditGroupDrawer(payload: EditGroupDrawerPropsType) {
           <div className="mt-2">
             <p className="text-md text-medium">Description</p>
             <Textarea
-              placeholder="Enter Endpoint description"
+              placeholder="Enter Group description"
               variant="outlined"
               value={description}
               size="md"
@@ -150,7 +125,7 @@ export default function EditGroupDrawer(payload: EditGroupDrawerPropsType) {
             <Button
               color="neutral"
               loadingPosition="end"
-              onClick={saveEndpoint}
+              onClick={saveGroup}
               variant="solid"
               disabled={!name || isLoading}
               className="w-full primary"
@@ -172,29 +147,6 @@ export default function EditGroupDrawer(payload: EditGroupDrawerPropsType) {
           </div>
         </div>
       </Drawer>
-
-      <Snackbar
-        variant="soft"
-        color={toastType}
-        open={toast}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        startDecorator={
-          toastType === 'success' ? (
-            <CheckIcon color="green" size={24} />
-          ) : (
-            <MdError color="red" size={24} />
-          )
-        }
-        autoHideDuration={1500}
-        endDecorator={
-          <Button onClick={() => setToast(false)} size="sm" variant="soft" color={toastType}>
-            Dismiss
-          </Button>
-        }
-      >
-        {toastType === 'success' ? 'Endpoint has been edited.' : 'Failed to edit Endpoint.'}
-      </Snackbar>
     </>
   );
 }

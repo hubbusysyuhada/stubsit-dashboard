@@ -28,15 +28,15 @@ import useNavigation from '@/store/useNavigation';
 import CenterLayout from '@/components/center-layout';
 import Loading from '@/components/loading';
 import EditGroupDrawer from '@/components/editGroupDrawer';
+import useToast from '@/store/useToast';
 
 export default function GroupDetailPage() {
   const router = useRouter();
   const { group: slug } = router.query;
   const { fetchGroups } = useNavigation();
-  const [deleteToast, setDeleteToast] = useState(false);
+  const { addToast } = useToast();
   const [disableDeleteModalBtn, setDisableDeleteModalBtn] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [errorDelete, setErrorDelete] = useState(false);
   const [group, setGroup] = useState<GroupDetailType>();
   const [isInvalidSlug, setIsInvalidSlug] = useState(false);
   const [openEditDrawer, setOpenEditDrawer] = useState(false);
@@ -65,14 +65,17 @@ export default function GroupDetailPage() {
     setDisableDeleteModalBtn(true);
     const { error } = await deleteEndpoint();
     if (!error) {
-      setDeleteToast(true);
       router.push('/');
       await fetchGroups();
     } else {
       setOpenDeleteModal(false);
-      setErrorDelete(true);
       setDisableDeleteModalBtn(false);
     }
+    addToast({
+      id: 'delete-group-toast',
+      text: error ? 'Failed to delete Group.' : 'Group has been deleted.',
+      variant: error ? 'danger' : 'success',
+    });
   };
 
   if (isInvalidSlug) return notFound();
@@ -188,40 +191,6 @@ export default function GroupDetailPage() {
           </DialogContent>
         </ModalDialog>
       </Modal>
-
-      <Snackbar
-        variant="soft"
-        color="success"
-        open={deleteToast}
-        onClose={(_, reason) => closeSnackbar(reason, setDeleteToast)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        startDecorator={<CheckIcon color="green" size={24} />}
-        autoHideDuration={1500}
-        endDecorator={
-          <Button onClick={() => setDeleteToast(false)} size="sm" variant="soft" color="success">
-            Dismiss
-          </Button>
-        }
-      >
-        Group has been deleted.
-      </Snackbar>
-
-      <Snackbar
-        variant="soft"
-        color="danger"
-        open={errorDelete}
-        onClose={(_, reason) => closeSnackbar(reason, setErrorDelete)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        startDecorator={<MdError color="red" size={24} />}
-        autoHideDuration={1500}
-        endDecorator={
-          <Button onClick={() => setErrorDelete(false)} size="sm" variant="soft" color="danger">
-            Dismiss
-          </Button>
-        }
-      >
-        Failed to delete Group.
-      </Snackbar>
 
       <EditGroupDrawer
         open={openEditDrawer}

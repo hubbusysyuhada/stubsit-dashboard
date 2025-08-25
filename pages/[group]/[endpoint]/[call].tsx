@@ -2,23 +2,24 @@
 
 import useFetch from '@/helpers/useFetch';
 import { CallDetailType } from '@/types/global';
-import { Button, Snackbar, SnackbarCloseReason, Textarea } from '@mui/joy';
-import { MdPlaylistAddCheckCircle as CheckIcon, MdEdit } from 'react-icons/md';
+import { Button, Textarea } from '@mui/joy';
+import { MdEdit } from 'react-icons/md';
 import { FaCopy } from 'react-icons/fa';
 import { SiCurl } from 'react-icons/si';
-import { notFound, useParams } from 'next/navigation';
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
+import { notFound } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import CenterLayout from '@/components/center-layout';
 import Loading from '@/components/loading';
 import MethodBadge from '@/components/method';
 import Editor from '@monaco-editor/react';
 import EditCallDrawer from '@/components/editCallDrawer';
 import { useRouter } from 'next/router';
+import useToast from '@/store/useToast';
 
 export default function CallDetailPage() {
   const router = useRouter();
+  const { addToast } = useToast();
   const { endpoint: endpointSlug, call: callSlug, group } = router.query;
-  const [copyToast, setCopyToast] = useState(false);
   const [copyType, setCopyType] = useState<'URL' | 'cURL' | 'Response' | 'Error message'>('URL');
   const [call, setCall] = useState<CallDetailType>();
   const [isInvalidSlug, setIsInvalidSlug] = useState(false);
@@ -28,7 +29,6 @@ export default function CallDetailPage() {
   );
 
   const init = useCallback(async () => {
-    console.log('sini', callSlug);
     if (callSlug) {
       setCall(undefined);
       const { data } = await getCallDetail();
@@ -49,24 +49,32 @@ export default function CallDetailPage() {
       </CenterLayout>
     );
 
+  const sentToast = () => {
+    addToast({
+      id: 'copy-url-toast',
+      variant: 'success',
+      text: `${copyType} has been copied to clipboard.`,
+    });
+  };
+
   const copyAsUrl = () => {
     navigator.clipboard.writeText(
       `${process.env.NEXT_PUBLIC_API_URL}/api/${call.endpoint.slug}/${call.slug}`
     );
     setCopyType('URL');
-    setCopyToast(true);
+    sentToast();
   };
 
   const copyResponse = () => {
     navigator.clipboard.writeText(call.response ? JSON.stringify(call.response, null, 2) : '');
     setCopyType('Response');
-    setCopyToast(true);
+    sentToast();
   };
 
   const copyError = () => {
     navigator.clipboard.writeText(call.error_message || '');
     setCopyType('Error message');
-    setCopyToast(true);
+    sentToast();
   };
 
   const copyAsCurl = () => {
@@ -79,12 +87,7 @@ export default function CallDetailPage() {
     commandParts.push(`"${url}"`);
     navigator.clipboard.writeText(commandParts.join(' '));
     setCopyType('cURL');
-    setCopyToast(true);
-  };
-
-  const closeSnackbar = (reason: SnackbarCloseReason, set: Dispatch<SetStateAction<boolean>>) => {
-    if (reason === 'clickaway' || reason === 'escapeKeyDown') return;
-    set(false);
+    sentToast();
   };
 
   const renderErrorMessage = () => {
@@ -198,23 +201,6 @@ export default function CallDetailPage() {
 
       {renderErrorMessage()}
       {renderResponse()}
-
-      <Snackbar
-        variant="soft"
-        color="success"
-        open={copyToast}
-        onClose={(_, reason) => closeSnackbar(reason, setCopyToast)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        startDecorator={<CheckIcon color="green" size={24} />}
-        autoHideDuration={1500}
-        endDecorator={
-          <Button onClick={() => setCopyToast(false)} size="sm" variant="soft" color="success">
-            Dismiss
-          </Button>
-        }
-      >
-        {copyType} has been copied to clipboard.
-      </Snackbar>
 
       <EditCallDrawer
         open={openEditDrawer}

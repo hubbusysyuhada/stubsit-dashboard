@@ -4,11 +4,11 @@ import useFetch from '@/helpers/useFetch';
 import useNavigation from '@/store/useNavigation';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
-import { Input, Button, Drawer, Textarea, Snackbar, SnackbarCloseReason, Switch } from '@mui/joy';
-import { MdPlaylistAddCheckCircle as CheckIcon, MdError } from 'react-icons/md';
+import { Input, Button, Drawer, Textarea, Switch } from '@mui/joy';
 import { CallDetailType } from '@/types/global';
 import MethodBadge from './method';
 import { Editor } from '@monaco-editor/react';
+import useToast from '@/store/useToast';
 
 type EditCallDrawerPropsType = {
   onClose: () => void;
@@ -20,9 +20,8 @@ type EditCallDrawerPropsType = {
 export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
   const router = useRouter();
   const { group } = router.query;
+  const { addToast } = useToast();
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [toast, setToast] = useState(false);
-  const [toastType, setToastType] = useState<'success' | 'danger'>('success');
   const [isLoading, setIsLoading] = useState(false);
   const [response_code, setResponseCode] = useState<number>(200);
   const [is_error, setIsError] = useState(false);
@@ -82,27 +81,19 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
   const saveCall = async () => {
     setIsLoading(true);
     const { error, data } = await updateCall();
-    if (error) setToastType('danger');
-    else {
-      closeDrawer();
-      setToastType('success');
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      fetchGroups();
-      if (data) router.push(`/${group}/${payload.call.endpoint.slug}/${payload.call.slug}`);
-      payload.onSave();
-      if (is_error) setResponse(null);
-      else setErrorMessage(null);
-    }
+    closeDrawer();
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    fetchGroups();
+    if (data) router.push(`/${group}/${payload.call.endpoint.slug}/${payload.call.slug}`);
+    payload.onSave();
+    if (is_error) setResponse(null);
+    else setErrorMessage(null);
+    addToast({
+      id: 'edit-call-toast',
+      text: error ? 'Failed to edit Call.' : 'Call has been edited.',
+      variant: error ? 'danger' : 'success',
+    });
     setIsLoading(false);
-    setToast(true);
-  };
-
-  const closeSnackbar = (
-    _: React.SyntheticEvent<unknown> | Event | null,
-    reason: SnackbarCloseReason
-  ) => {
-    if (reason === 'clickaway' || reason === 'escapeKeyDown') return;
-    setToast(false);
   };
 
   const renderErrorMessageForm = () => {
@@ -237,29 +228,6 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
           </div>
         </div>
       </Drawer>
-
-      <Snackbar
-        variant="soft"
-        color={toastType}
-        open={toast}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        startDecorator={
-          toastType === 'success' ? (
-            <CheckIcon color="green" size={24} />
-          ) : (
-            <MdError color="red" size={24} />
-          )
-        }
-        autoHideDuration={1500}
-        endDecorator={
-          <Button onClick={() => setToast(false)} size="sm" variant="soft" color={toastType}>
-            Dismiss
-          </Button>
-        }
-      >
-        {toastType === 'success' ? 'Call has been edited.' : 'Failed to edit Call.'}
-      </Snackbar>
     </>
   );
 }

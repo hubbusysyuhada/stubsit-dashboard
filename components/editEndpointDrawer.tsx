@@ -16,6 +16,7 @@ import {
 } from '@mui/joy';
 import { MdPlaylistAddCheckCircle as CheckIcon, MdError } from 'react-icons/md';
 import { EndpointDetailType } from '@/types/global';
+import useToast from '@/store/useToast';
 
 type EditEndpointDrawerPropsType = {
   onClose: () => void;
@@ -26,17 +27,16 @@ type EditEndpointDrawerPropsType = {
 
 export default function EditEndpointDrawer(payload: EditEndpointDrawerPropsType) {
   const router = useRouter();
+  const { fetchGroups, groups } = useNavigation();
+  const { addToast } = useToast();
   const maxLength = 500;
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [toast, setToast] = useState(false);
-  const [toastType, setToastType] = useState<'success' | 'danger'>('success');
   const [selectedGroup, setSelectedGroup] = useState('');
   const [uniqueNameError, setUniqueNameError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [description, setDescription] = useState('');
   const [name, setName] = useState('');
   const { group } = useParams();
-  const { fetchGroups, groups } = useNavigation();
 
   useEffect(() => setSelectedGroup((group as string) || ''), [group]);
 
@@ -74,17 +74,20 @@ export default function EditEndpointDrawer(payload: EditEndpointDrawerPropsType)
     setIsLoading(true);
     const { error, data } = await updateEndpoint();
     if (error) {
-      setToastType('danger');
       if (error.statusCode === 400) setUniqueNameError(true);
     } else {
       closeDrawer();
-      setToastType('success');
+      await new Promise((resolve) => setTimeout(resolve, 300));
       fetchGroups();
       if (data) router.push(`/${selectedGroup}/${payload.endpoint.slug}`);
       payload.onSave();
     }
     setIsLoading(false);
-    setToast(true);
+    addToast({
+      id: 'edit-endpoint-toast',
+      text: error ? 'Failed to edit Endpoint.' : 'Endpoint has been edited.',
+      variant: error ? 'danger' : 'success',
+    });
   };
 
   const closeSnackbar = (
@@ -92,7 +95,6 @@ export default function EditEndpointDrawer(payload: EditEndpointDrawerPropsType)
     reason: SnackbarCloseReason
   ) => {
     if (reason === 'clickaway' || reason === 'escapeKeyDown') return;
-    setToast(false);
   };
 
   const renderOptions = () => {
@@ -187,29 +189,6 @@ export default function EditEndpointDrawer(payload: EditEndpointDrawerPropsType)
           </div>
         </div>
       </Drawer>
-
-      <Snackbar
-        variant="soft"
-        color={toastType}
-        open={toast}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        startDecorator={
-          toastType === 'success' ? (
-            <CheckIcon color="green" size={24} />
-          ) : (
-            <MdError color="red" size={24} />
-          )
-        }
-        autoHideDuration={1500}
-        endDecorator={
-          <Button onClick={() => setToast(false)} size="sm" variant="soft" color={toastType}>
-            Dismiss
-          </Button>
-        }
-      >
-        {toastType === 'success' ? 'Endpoint has been edited.' : 'Failed to edit Endpoint.'}
-      </Snackbar>
     </>
   );
 }
