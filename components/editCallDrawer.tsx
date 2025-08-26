@@ -39,11 +39,6 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
     return false;
   }, [isResponseValidJSON, is_error, response_code, isLoading]);
 
-  const parsedResponse = useMemo(() => {
-    if (isResponseValidJSON && response && !is_error) return JSON.parse(response as string);
-    return null;
-  }, [isResponseValidJSON, is_error, response_code, isLoading]);
-
   useEffect(() => {
     setResponseCode(payload.call.response_code);
     setIsError(payload.call.is_error);
@@ -58,13 +53,7 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        method: payload.call.method,
-        response_code,
-        is_error,
-        error_message: is_error ? error_message : null,
-        response: parsedResponse,
-      }),
+      body: generateBody(),
     }
   );
 
@@ -77,7 +66,6 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
     setOpenDrawer(false);
     payload.onClose();
   };
-
   const saveCall = async () => {
     setIsLoading(true);
     const { error, data } = await updateCall();
@@ -160,6 +148,23 @@ export default function EditCallDrawer(payload: EditCallDrawerPropsType) {
       setResponse(JSON.stringify(JSON.parse(response), null, 2));
     }
   };
+
+  function generateBody() {
+    let responseBody = null;
+    try {
+      if (isResponseValidJSON && response && !is_error)
+        responseBody = JSON.parse(response as string);
+    } catch (error) {
+      responseBody = null;
+    }
+    return JSON.stringify({
+      method: payload.call.method,
+      response_code,
+      is_error,
+      error_message: is_error ? error_message : null,
+      response: responseBody,
+    });
+  }
 
   return (
     <>
