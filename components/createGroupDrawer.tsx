@@ -4,17 +4,7 @@ import useFetch from '@/helpers/useFetch';
 import useNavigation from '@/store/useNavigation';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import {
-  Input,
-  Button,
-  Drawer,
-  Textarea,
-  Snackbar,
-  SnackbarCloseReason,
-  Select,
-  Option,
-} from '@mui/joy';
-import { MdPlaylistAddCheckCircle as CheckIcon, MdError } from 'react-icons/md';
+import { Input, Button, Drawer, Textarea, SnackbarCloseReason } from '@mui/joy';
 import useToast from '@/store/useToast';
 
 type CreateEndpointDrawerPropsType = { onClose: () => void; open: boolean };
@@ -22,7 +12,7 @@ type CreateEndpointDrawerPropsType = { onClose: () => void; open: boolean };
 export default function CreateGroupDrawer(payload: CreateEndpointDrawerPropsType) {
   const router = useRouter();
   const { addToast } = useToast();
-  const maxLength = 500;
+  const maxLength = 2000;
   const [openDrawer, setOpenDrawer] = useState(false);
   const [uniqueNameError, setUniqueNameError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

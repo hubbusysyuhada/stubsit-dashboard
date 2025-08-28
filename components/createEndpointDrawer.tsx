@@ -13,7 +13,7 @@ export default function CreateEndpointDrawer(payload: CreateEndpointDrawerPropsT
   const router = useRouter();
   const { fetchGroups, groups } = useNavigation();
   const { addToast } = useToast();
-  const maxLength = 500;
+  const maxLength = 2000;
   const [openDrawer, setOpenDrawer] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState('');
   const [uniqueNameError, setUniqueNameError] = useState(false);

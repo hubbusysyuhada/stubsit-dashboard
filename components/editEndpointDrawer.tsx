@@ -4,17 +4,7 @@ import useFetch from '@/helpers/useFetch';
 import useNavigation from '@/store/useNavigation';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import {
-  Input,
-  Button,
-  Drawer,
-  Textarea,
-  Snackbar,
-  SnackbarCloseReason,
-  Select,
-  Option,
-} from '@mui/joy';
-import { MdPlaylistAddCheckCircle as CheckIcon, MdError } from 'react-icons/md';
+import { Input, Button, Drawer, Textarea, SnackbarCloseReason, Select, Option } from '@mui/joy';
 import { EndpointDetailType } from '@/types/global';
 import useToast from '@/store/useToast';
 
@@ -29,7 +19,7 @@ export default function EditEndpointDrawer(payload: EditEndpointDrawerPropsType)
   const router = useRouter();
   const { fetchGroups, groups } = useNavigation();
   const { addToast } = useToast();
-  const maxLength = 500;
+  const maxLength = 2000;
   const [openDrawer, setOpenDrawer] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState('');
   const [uniqueNameError, setUniqueNameError] = useState(false);

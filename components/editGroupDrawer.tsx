@@ -4,7 +4,7 @@ import useFetch from '@/helpers/useFetch';
 import useNavigation from '@/store/useNavigation';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Input, Button, Drawer, Textarea, SnackbarCloseReason, Option } from '@mui/joy';
+import { Input, Button, Drawer, Textarea } from '@mui/joy';
 import { GroupDetailType } from '@/types/global';
 import { useRouter } from 'next/router';
 import useToast from '@/store/useToast';
@@ -19,7 +19,7 @@ type EditGroupDrawerPropsType = {
 export default function EditGroupDrawer(payload: EditGroupDrawerPropsType) {
   const router = useRouter();
   const { addToast } = useToast();
-  const maxLength = 500;
+  const maxLength = 2000;
   const [openDrawer, setOpenDrawer] = useState(false);
   const [uniqueNameError, setUniqueNameError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
