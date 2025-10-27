@@ -14,6 +14,7 @@ export default function CreateEndpointDrawer(payload: CreateEndpointDrawerPropsT
   const { fetchGroups, groups } = useNavigation();
   const { addToast } = useToast();
   const maxLength = 2000;
+  const maxNameLength = 25;
   const [openDrawer, setOpenDrawer] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState('');
   const [uniqueNameError, setUniqueNameError] = useState(false);
@@ -108,14 +109,16 @@ export default function CreateEndpointDrawer(payload: CreateEndpointDrawerPropsT
               color={uniqueNameError ? 'danger' : 'neutral'}
               size="md"
               className="mt-2"
-              onChange={(e) => e.target.value.length <= 25 && setName(e.target.value)}
+              onChange={(e) => e.target.value.length <= maxNameLength && setName(e.target.value)}
               fullWidth
             />
             <div className="flex justify-between mt-2 mx-2">
               <p className={`text-xs error ${uniqueNameError ? '' : 'invisible'}`}>
                 This name is taken.
               </p>
-              <p className="text-xs">{name.length}/25</p>
+              <p className="text-xs">
+                {name.length}/{maxNameLength}
+              </p>
             </div>
           </div>
           <div className="mt-2">
